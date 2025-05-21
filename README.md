@@ -1,6 +1,6 @@
-# smart-shoppingcart
+# *smart-shoppingcart*
 
-智慧商城项目
+*智慧商城项目*
 
 ## *****0520 Dev-log*****
 
