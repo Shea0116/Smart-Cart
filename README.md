@@ -2,7 +2,6 @@
 
 智慧商城项目
 
-
 ## *****0520 Dev-log*****
 
 ### 创建项目
@@ -19,12 +18,10 @@
   * ESLint
   * 配置文件 dedicated config files
 
-
 ### 调整初始化目录
 
 1. 删除多余文件
 2. 新增 api 与 utils目录
-
 
 ### Vant 全部导入
 
@@ -55,7 +52,6 @@
        }
    }
    ```
-
 
 ### 路由设计配置
 
@@ -119,11 +115,10 @@ const router = new VueRouter({
 export default router
 ```
 
-
 ### 登录页面静态布局
 
 1. **新建 style/common.less 重置默认样式**
 2. **main.js 导入 common.less**
 3. **图片素材放入 assets 目录备用**
 
-![loginPage](image/README/1747816460058.png "登录静态页面")
+![1747818575703](image/README/1747818575703.png "登录页面静态布局")
