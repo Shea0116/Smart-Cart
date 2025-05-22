@@ -1,5 +1,6 @@
 /* 封装axios用于发送请求 */
 import axios from 'axios'
+import { Toast } from 'vant'
 
 // 创建一个新的axios实例
 const request = axios.create({
@@ -11,6 +12,12 @@ const request = axios.create({
 // 添加请求拦截器
 request.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
+  Toast.loading({
+    message: '请求中...',
+    forbidClick: true,
+    loadingType: 'spinner',
+    duration: 0
+  })
   return config
 }, function (error) {
   // 对请求错误做些什么
@@ -24,6 +31,8 @@ request.interceptors.response.use(function (response) {
     //! 在请求没有成功时，对用户进行提示
     this.$toast(res.message)
     return Promise.reject(res.message)
+  } else {
+    Toast.clear()
   }
   // 对响应数据做点什么
   return response.data

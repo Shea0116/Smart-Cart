@@ -124,17 +124,18 @@ export default router
 ![1747818575703](image/README/1747818575703.png "登录页面静态布局")
 
 
+
 ## 0521 Dev-log
 
 ### request模块 - axios封装
 
-#### **目标：**
+**目标：**
 
 使用 axios 来请求后端接口, 一般都会对 axios 进行 一些配置 (比如: 配置基础地址，请求响应拦截器等)
 
 对 axios 进行基本的二次封装, 单独封装到一个 request 模块中, 便于维护使用
 
-#### [接口文档地址](https://apifox.com/apidoc/shared/12ab6b18-adc2-444c-ad11-0e60f5693f66/doc-2221080 "点击进入接口文档")
+[**接口文档地址**](https://apifox.com/apidoc/shared/12ab6b18-adc2-444c-ad11-0e60f5693f66/doc-2221080 "点击进入接口文档")
 
 **基地址：**http://smart-shop.itheima.net/index.php?s=/api/
 
@@ -176,11 +177,9 @@ request.interceptors.response.use(function (response) {
 export default request
 ```
 
-
-
 ### 图片验证码功能完成
 
-#### 需求：
+**需求：**
 
 1. 动态将请求回来的 base64 图片，解析渲染出来
 2. 点击验证码图片盒子，要刷新验证码
@@ -196,7 +195,6 @@ methods: {
                     this.$toast.success('获取图形验证码成功!')
                 },
 ```
-
 
 ### api 接口模块 - 封装图片验证码接口
 
@@ -214,7 +212,6 @@ export const getPicCode = () => {
     return request.get('captcha/image')
 }
 ```
-
 
 ### Toast 轻提醒插件
 
@@ -245,10 +242,9 @@ Vue.use(Vant);
    this.$toast('提示内容')
    ```
 
-
 ### 短信验证倒计时功能实现
 
-##### **需求：**
+**需求：**
 
 1. 点击按钮，实现 倒计时 效果
 2. 倒计时之前的 校验处理 (手机号、验证码)
@@ -283,10 +279,9 @@ Vue.use(Vant);
            },
 ```
 
-
 ### 登录功能实现
 
-##### 目标：
+**目标：**
 
 **封装api登录接口，实现登录功能**
 
@@ -339,10 +334,9 @@ Vue.use(Vant);
    ```
 3. 调用方法，发送请求，成功添加提示并跳转
 
-
 ### 响应拦截器统一处理错误提示
 
-##### 目标：
+**目标：**
 
     **通过响应拦截器，统一处理接口的错误提示**
 
@@ -364,3 +358,98 @@ request.interceptors.response.use(function (response) {
   return Promise.reject(error)
 })
 ```
+
+
+
+## 0522 Dev-log
+
+### 登录权证信息储存
+
+**目标：**
+
+**vuex 构建 user 模块存储登录权证 (token & userId)**
+
+1. token 存入 vuex 的好处，易获取，响应式
+2. vuex 需要分模块 => user 模块
+
+![1747924415282](image/README/1747924415282.png)
+
+### Storage存储模块 - Vuex持久化处理
+
+**目标：**
+
+**封装 storage 存储模块，利用本地存储，进行 vuex 持久化处理**
+
+**原因：**
+
+1. **vuex刷新会丢失数据 → 将数据存入本地**
+2. **每次存取操作太麻烦 → 封装 utils/storage 工具**
+
+   ```
+   const InfoKey = 'shopping_userInfo'
+
+   // 获取个人信息
+   export const getInfo = () => {
+       const defaultObj = { token: '', userId: '' }
+       const result = localStorage.getItem(InfoKey)
+       return result ? JSON.parse( result ) :defaultObj
+   }
+
+   // 设置个人信息
+   export const setInfo = info => {
+       localStorage.setItem( InfoKey, JSON.stringify(info))
+   }
+
+   // 删除个人信息
+   export const removeInfo = () => {
+       localStorage.removeItem( InfoKey )
+   }
+
+   ```
+
+### 优化：添加请求loading效果
+
+**目标：统一在每次请求后台时，添加 loading 效果**
+
+**背景：**有时候因为网络原因，一次请求的结果可能需要一段时间后才能回来，此时，需要给用户 添加 loading 提示。
+
+**添加 loading 提示的好处：**
+
+1. 节流处理：防止用户在一次请求还没回来之前，多次进行点击，发送无效请求
+2. 友好提示：告知用户，目前是在加载中，请耐心等待，用户体验会更好
+
+**实操步骤：**
+
+1. 请求拦截器中，每次请求，打开 loading
+2. 响应拦截器中，每次响应，关闭 loading
+
+[![1747924358554](image/README/1747924358554.png)]()
+
+### 优化：添加页面访问拦截
+
+**目标：基于全局前置守卫，进行页面访问拦截处理**
+
+**说明：**智慧商城项目，大部分页面，游客都可以直接访问, 如遇到需要登录才能进行的操作，提示并跳转到登录
+
+**但是：**对于支付页，订单页等，必须是登录的用户才能访问的，游客不能进入该页面，需要做拦截处理
+
+![1747924567571](image/README/1747924567571.png)
+
+
+路由导航守卫 - [全局前置守卫](https://v3.router.vuejs.org/zh/guide/advanced/navigation-guards.html#%E5%85%A8%E5%B1%80%E5%89%8D%E7%BD%AE%E5%AE%88%E5%8D%AB)
+
+![1747924724277](image/README/1747924724277.png)
+
+1. 所有的路由一旦被匹配到，都会先经过全局前置守卫
+2. 只有全局前置守卫放行，才会真正解析渲染组件，才能看到页面内容
+
+访问权限页面时，拦截或放行的关键点？ → ***用户是否有登录权证 token***
+
+![1747924752753](image/README/1747924752753.png)
+
+
+### 首页 - 静态结构准备&动态渲染
+
+### 搜索 - 历史记录管理
+
+//!?todo 尝试用vuex解决history

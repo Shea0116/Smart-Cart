@@ -12,6 +12,8 @@ import User from '@/views/layout/user.vue'
 import Cart from '@/views/layout/cart.vue'
 import Category from '@/views/layout/category.vue'
 
+import store from '@/store'
+
 
 Vue.use(VueRouter)
 
@@ -38,4 +40,27 @@ const router = new VueRouter({
   ]
 })
 
+//! 配置全局导航守卫
+//* to:   到哪里去，到哪去的完整路由信息对象（路径，参数）
+//* from: 从哪里来，从哪来的完整路由信息对象（路径，参数）
+//* next()： 是否放行
+//* （1）next()： 直接放行，放行到to要去的路径
+//* （2）next(路径)： 进行拦截，拦截到next里的路径
+
+//todo 定义数组，专门存放用户所有需要权限访问的页面
+const limitUrl = ['/pay', '/myorder']
+router.beforeEach((to, from, next) => {
+  if (!limitUrl.includes(to.path)) {
+    next()
+    return;
+  }
+  // 上方条件未执行，说明是限制页
+  const token = store.state.user.userInfo.token
+  console.log(token)
+  if (token) {
+    next()
+  } else {
+    next('/login')
+  }
+})
 export default router
