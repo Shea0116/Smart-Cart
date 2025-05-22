@@ -2,7 +2,7 @@
 
 *智慧商城项目*
 
-## *****0520 Dev-log*****
+## 0520 Dev-log
 
 ### 创建项目
 
@@ -122,3 +122,245 @@ export default router
 3. **图片素材放入 assets 目录备用**
 
 ![1747818575703](image/README/1747818575703.png "登录页面静态布局")
+
+
+## 0521 Dev-log
+
+### request模块 - axios封装
+
+#### **目标：**
+
+使用 axios 来请求后端接口, 一般都会对 axios 进行 一些配置 (比如: 配置基础地址，请求响应拦截器等)
+
+对 axios 进行基本的二次封装, 单独封装到一个 request 模块中, 便于维护使用
+
+#### [接口文档地址](https://apifox.com/apidoc/shared/12ab6b18-adc2-444c-ad11-0e60f5693f66/doc-2221080 "点击进入接口文档")
+
+**基地址：**http://smart-shop.itheima.net/index.php?s=/api/
+
+```
+/* 封装axios用于发送请求 */
+import axios from 'axios'
+
+// 创建一个新的axios实例
+const request = axios.create({
+  baseURL: 'http://smart-shop.itheima.net/index.php?s=/api/',
+  headers: { platform: 'H5' },
+  timeout: 5000
+})
+
+// 添加请求拦截器
+request.interceptors.request.use(function (config) {
+  // 在发送请求之前做些什么
+  return config
+}, function (error) {
+  // 对请求错误做些什么
+  return Promise.reject(error)
+})
+
+// 添加响应拦截器
+request.interceptors.response.use(function (response) {
+  const res = response.data
+  if( res.status !== 200 ) {
+    //! 在请求没有成功时，对用户进行提示
+    this.$toast(res.message)
+    return Promise.reject(res.message)
+  }
+  // 对响应数据做点什么
+  return response.data
+}, function (error) {
+  // 对响应错误做点什么
+  return Promise.reject(error)
+})
+
+export default request
+```
+
+
+
+### 图片验证码功能完成
+
+#### 需求：
+
+1. 动态将请求回来的 base64 图片，解析渲染出来
+2. 点击验证码图片盒子，要刷新验证码
+
+```
+methods: {
+                //? 获取图片验证码
+                async getPic () {
+                    const { data: { base64, key } } = await getPicCode()
+                    this.picUrl = base64
+                    this.picKey = key
+                    //! 提示 from Vant
+                    this.$toast.success('获取图形验证码成功!')
+                },
+```
+
+
+### api 接口模块 - 封装图片验证码接口
+
+**封装api模块的好处：**
+
+1. 请求与页面逻辑分离
+2. 相同的请求可以直接复用
+3. 请求进行了统一管理
+
+```
+import request from "@/utils/request"
+
+//todo 获取图形验证码
+export const getPicCode = () => {
+    return request.get('captcha/image')
+}
+```
+
+
+### Toast 轻提醒插件
+
+**目标：阅读Vant文档，掌握 toast 轻提示**
+
+##### 注册安装：
+
+```
+// main.js
+import Vant from 'vant';
+
+Vue.use(Vant);
+```
+
+##### 两种使用方法：
+
+1. 导入调用（**组件内 或 非组件内均可**）
+
+   ```
+   import { Toast } from 'vant'
+   Toast{'提示内容'}
+   ```
+2. 通过this直接调用（**必须组件内**）
+
+   本质：将方法，注册挂载到了Vue原型上 Vue.prototype.$toast = xxx
+
+   ```
+   this.$toast('提示内容')
+   ```
+
+
+### 短信验证倒计时功能实现
+
+##### **需求：**
+
+1. 点击按钮，实现 倒计时 效果
+2. 倒计时之前的 校验处理 (手机号、验证码)
+3. 封装短信验证请求接口，发送请求添加提示
+
+```
+// 在 methods 中添加
+
+	//? 获取短信验证码
+           async getCode () {
+            	//! 在获取短信验证码前进行校验
+                if( !this.verifyFn() ){
+                	return
+                 }
+
+                //! 判断定时器是否开启
+                if( !this.timer && this.curSeconds === this.totalSeconds ){
+                	//todo 发送请求，获取验证码
+                        await getMsgCode(this.picCode, this.picKey, this.mobile)
+                        this.$toast('发送成功，请注意查收')
+
+                     //todo 开始倒计时
+                     this.timer = setInterval( () => {
+                         this.curSeconds--
+                         if( this.curSeconds <= 0){
+                             clearInterval( this.timer )
+                             this.timer = null
+                             this.curSeconds = 60
+                         }
+                    }, 1000)
+                 }
+           },
+```
+
+
+### 登录功能实现
+
+##### 目标：
+
+**封装api登录接口，实现登录功能**
+
+1. 阅读接口文档，封装登录接口
+
+   ```
+   // 于 api/login.js 中配置
+   //todo 登录接口
+   export const Login = (mobile , smsCode) => {
+       return request.post("/passport/login", {
+           form: {
+               isParty: false,
+               partyData: {},
+               mobile,
+               smsCode
+           }
+       })
+   }
+   ```
+2. 登录前的校验 (手机号，图形验证码，短信验证码)
+
+   ```
+   //? 校验输入框内容
+   verifyFn () {
+   	if(!/^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(this.mobile)) {
+   		this.$toast('请输入正确的手机号')
+   		return false
+   	}
+   	if (!/^\w{4}$/.test(this.picCode)) {
+   		this.$toast('请输入正确的图形验证码')
+   		return false
+   	}
+   	return true
+   	},
+
+   //? 登录
+   async login () {
+   	if (!this.verifyFn()) {
+   		 return
+            }
+
+           if(!/^\d{6}$/.test(this.msgCode)) {
+                 this.$toast('请输入正确短信验证码')
+                 return
+            }
+
+            const res = await Login(this.mobile, this.msgCode)
+            console.log(res)
+   }
+   ```
+3. 调用方法，发送请求，成功添加提示并跳转
+
+
+### 响应拦截器统一处理错误提示
+
+##### 目标：
+
+    **通过响应拦截器，统一处理接口的错误提示**
+
+```
+// 添加于 utils/request.js
+
+// 添加响应拦截器
+request.interceptors.response.use(function (response) {
+  const res = response.data
+  if( res.status !== 200 ) {
+    //! 在请求没有成功时，对用户进行提示
+    this.$toast(res.message)
+    return Promise.reject(res.message)
+  }
+  // 对响应数据做点什么
+  return response.data
+}, function (error) {
+  // 对响应错误做点什么
+  return Promise.reject(error)
+})
+```
