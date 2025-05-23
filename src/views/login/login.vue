@@ -81,8 +81,11 @@
                     console.log(res)
                     
                     this.$store.commit( 'user/setUserInfo', res.data )
-                    this.$router.push( '/')
                     this.$toast( '登陆成功' )
+
+                    // 判断有无回跳地址
+                    const url = this.$route.query.backUrl || '/'
+                    this.$router.replace(url)
                 }
             },
             destroyed () {

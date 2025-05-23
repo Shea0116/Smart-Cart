@@ -2,7 +2,7 @@
     <div class="search">
       <van-nav-bar title="商品搜索" left-arrow @click-left="$router.go(-1)" />
   
-      <van-search v-model="search" show-action placeholder="请输入搜索关键词" clearable>
+      <van-search @keypress.enter="goSearch(search)" v-model="search" show-action placeholder="请输入搜索关键词" clearable >
         <template #action>
           <div @click="goSearch(search)">搜索</div>
 
@@ -22,7 +22,7 @@
     </div>
 </template>
   
-  <script>
+<script>
   import { getHistoryList, setHistoryList } from '@/utils/storage'
   //todo import store from '@/store'
 
@@ -37,16 +37,20 @@
     },
     methods: {
       goSearch (key) {
+        // 添加空值检查
+        if (!key || !key.trim()) {
+          this.$toast('请输入搜索关键词')
+          return
+        }
+        
         const index = this.history.indexOf(key)
         //? 如果点击的是已经存在的搜索记录，需要将其前移
         if ( index !== -1 ) {
           this.history.splice(index, 1)
         }
         this.history.unshift(key)
-        this.$router.push(`/searchlist?search=${key}`)
-
         setHistoryList(this.history)
-        this.$router.push(`/searchlist?serach=${key}`)
+        this.$router.push(`/searchlist?search=${key}`)
       },
       clear () {
         this.history = []
@@ -55,9 +59,9 @@
       }
     }
   }
-  </script>
+</script>
   
-  <style lang="less" scoped>
+<style lang="less" scoped>
   .search {
     .searchBtn {
       background-color: #fa2209;
@@ -104,4 +108,4 @@
       margin-bottom: 10px;
     }
   }
-  </style>
+</style>
