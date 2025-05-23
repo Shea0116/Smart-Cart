@@ -11,17 +11,25 @@
 * **安装脚手架**
 * **创建项目**
 * **选择自定义**
+
   * Babel / Router / Vuex / CSS / Linter
   * Vue2.x
   * VueRouter hash模式
   * CSS预处理 Less
   * ESLint
   * 配置文件 dedicated config files
+  * 
+
+  ---
 
 ### 调整初始化目录
 
 1. 删除多余文件
 2. 新增 api 与 utils目录
+
+---
+
+
 
 ### Vant 全部导入
 
@@ -34,6 +42,12 @@
 
    Vue.use(Vant);
    ```
+
+
+
+---
+
+
 
 ### 项目中vw适配
 
@@ -52,6 +66,12 @@
        }
    }
    ```
+
+
+
+---
+
+
 
 ### 路由设计配置
 
@@ -115,6 +135,12 @@ const router = new VueRouter({
 export default router
 ```
 
+
+
+---
+
+
+
 ### 登录页面静态布局
 
 1. **新建 style/common.less 重置默认样式**
@@ -122,6 +148,10 @@ export default router
 3. **图片素材放入 assets 目录备用**
 
 ![1747818575703](image/README/1747818575703.png "登录页面静态布局")
+
+---
+
+---
 
 
 
@@ -177,6 +207,12 @@ request.interceptors.response.use(function (response) {
 export default request
 ```
 
+
+
+---
+
+
+
 ### 图片验证码功能完成
 
 **需求：**
@@ -196,6 +232,12 @@ methods: {
                 },
 ```
 
+
+
+---
+
+
+
 ### api 接口模块 - 封装图片验证码接口
 
 **封装api模块的好处：**
@@ -212,6 +254,12 @@ export const getPicCode = () => {
     return request.get('captcha/image')
 }
 ```
+
+
+
+---
+
+
 
 ### Toast 轻提醒插件
 
@@ -241,6 +289,12 @@ Vue.use(Vant);
    ```
    this.$toast('提示内容')
    ```
+
+
+
+---
+
+
 
 ### 短信验证倒计时功能实现
 
@@ -278,6 +332,12 @@ Vue.use(Vant);
                  }
            },
 ```
+
+
+
+---
+
+
 
 ### 登录功能实现
 
@@ -334,6 +394,12 @@ Vue.use(Vant);
    ```
 3. 调用方法，发送请求，成功添加提示并跳转
 
+
+
+---
+
+
+
 ### 响应拦截器统一处理错误提示
 
 **目标：**
@@ -361,6 +427,12 @@ request.interceptors.response.use(function (response) {
 
 
 
+---
+
+---
+
+
+
 ## 0522 Dev-log
 
 ### 登录权证信息储存
@@ -373,6 +445,12 @@ request.interceptors.response.use(function (response) {
 2. vuex 需要分模块 => user 模块
 
 ![1747924415282](image/README/1747924415282.png)
+
+
+
+---
+
+
 
 ### Storage存储模块 - Vuex持久化处理
 
@@ -407,6 +485,12 @@ request.interceptors.response.use(function (response) {
 
    ```
 
+
+
+---
+
+
+
 ### 优化：添加请求loading效果
 
 **目标：统一在每次请求后台时，添加 loading 效果**
@@ -425,6 +509,12 @@ request.interceptors.response.use(function (response) {
 
 [![1747924358554](image/README/1747924358554.png)]()
 
+
+
+---
+
+
+
 ### 优化：添加页面访问拦截
 
 **目标：基于全局前置守卫，进行页面访问拦截处理**
@@ -435,8 +525,7 @@ request.interceptors.response.use(function (response) {
 
 ![1747924567571](image/README/1747924567571.png)
 
-
-路由导航守卫 - [全局前置守卫](https://v3.router.vuejs.org/zh/guide/advanced/navigation-guards.html#%E5%85%A8%E5%B1%80%E5%89%8D%E7%BD%AE%E5%AE%88%E5%8D%AB)
+**路由导航守卫 - [全局前置守卫](https://v3.router.vuejs.org/zh/guide/advanced/navigation-guards.html#%E5%85%A8%E5%B1%80%E5%89%8D%E7%BD%AE%E5%AE%88%E5%8D%AB)**
 
 ![1747924724277](image/README/1747924724277.png)
 
@@ -448,8 +537,43 @@ request.interceptors.response.use(function (response) {
 ![1747924752753](image/README/1747924752753.png)
 
 
+
+---
+
+
+
 ### 首页 - 静态结构准备&动态渲染
 
+**目标：实现首页静态结构，封装接口，完成首页动态渲染**
+
+![1747959211808](image/README/1747959211808.jpg)
+
+![1747959241223](image/README/1747959241223.jpg)
+
+
+
+---
+
+
+
 ### 搜索 - 历史记录管理
+
+**目标：构建搜索页的静态布局，完成历史记录的管理**
+
+**需求：**
+
+1. 搜索历史基本渲染
+2. 点击搜索 (添加历史)
+
+    点击 搜索按钮 或 底下历史记录，都能进行搜索
+
+    ① 若之前**没有** 相同搜索关键字，则直接**追加到最前面**
+
+    ② 若之前**已有** 相同搜索关键字，将该**原有关键字移除，再追加**
+
+3. 清空历史：添加清空图标，可以清空历史记录
+4. 持久化：搜索历史需要持久化，刷新历史不丢失
+
+![1747959646640](image/README/1747959646640.png)
 
 //!?todo 尝试用vuex解决history
