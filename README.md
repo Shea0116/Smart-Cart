@@ -576,4 +576,6 @@ request.interceptors.response.use(function (response) {
 
 ![1747959646640](image/README/1747959646640.png)
 
-//!?todo 尝试用vuex解决history
+**尝试用vuex解决history (使用todo中的代码实现)**
+
+![1747960262003](image/README/1747960262003.jpg)

@@ -24,6 +24,7 @@
   
   <script>
   import { getHistoryList, setHistoryList } from '@/utils/storage'
+  //todo import store from '@/store'
 
   export default {
     name: 'SearchIndex',
@@ -31,7 +32,7 @@
         return {
             search: '',
             history: getHistoryList()
-            //! history: this.$store.SearchHistory.searchInfo
+            //todo history: store.state.SearchHistory.searchInfo
         }
     },
     methods: {
