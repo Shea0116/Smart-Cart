@@ -1,6 +1,7 @@
 /* 封装axios用于发送请求 */
 import axios from 'axios'
 import { Toast } from 'vant'
+import store from '@/store'
 
 // 创建一个新的axios实例
 const request = axios.create({
@@ -18,6 +19,11 @@ request.interceptors.request.use(function (config) {
     loadingType: 'spinner',
     duration: 0
   })
+  const token = store.state.user.userInfo.token
+  if (token) {
+    config.headers['Access-Token'] = token
+    config.headers.platform = 'H5'
+  }
   return config
 }, function (error) {
   // 对请求错误做些什么
@@ -29,7 +35,7 @@ request.interceptors.response.use(function (response) {
   const res = response.data
   if( res.status !== 200 ) {
     //! 在请求没有成功时，对用户进行提示
-    this.$toast(res.message)
+    Toast(res.message)
     return Promise.reject(res.message)
   } else {
     Toast.clear()

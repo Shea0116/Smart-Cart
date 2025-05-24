@@ -2,6 +2,7 @@
 import { getProDetail, getProComment } from '@/api/product'
 import defaultImg from '@/assets/default-avatar.png'
 import CountBox from '@/components/CountBox.vue'
+import { addCart } from '@/api/cart'
   export default {
     name: 'ProDetail',
     data () {
@@ -15,6 +16,7 @@ import CountBox from '@/components/CountBox.vue'
         mode: 'cart',
         showPannel: false,
         addCount: 1,
+        cartTotal: 0,
       }
     },
     components: {
@@ -68,7 +70,22 @@ import CountBox from '@/components/CountBox.vue'
             .catch(() => {})
             return;
         }
-        console.log('进行购物车操作')
+        const res = await addCart(this.goodsId, this.addCount, this.detail.skuList[0].goods_sku_id)
+        console.log(res)
+        this.cartTotal = res.data.cartTotal
+        this.$toast('加入购物车成功')
+        this.showPannel = false
+      },
+      goBuyNow () {
+        this.$router.push({
+          path: '/pay',
+          query: {
+            mode: 'buyNow',
+            goodsId: this.goodsId,
+            goodsSkuId: this.detail.skuList[0].goods_sku_id,
+            goodsNum: this.addCount
+          }
+        })
       }
     },
     computed: {
@@ -151,6 +168,7 @@ import CountBox from '@/components/CountBox.vue'
           <span>首页</span>
         </div>
         <div class="icon-cart">
+          <span v-if="cartTotal>0" class="num">{{ cartTotal }}</span>
           <van-icon name="shopping-cart-o" />
           <span>购物车</span>
         </div>
@@ -182,7 +200,7 @@ import CountBox from '@/components/CountBox.vue'
             </div>
             <div class="showbtn" v-if="detail.stock_total > 0">
                 <div class="btn" v-if="mode === 'cart'" @click="addCart">加入购物车</div>
-                <div class="btn now" v-if="mode === 'buyNow'">立刻购买</div>
+                <div class="btn now" v-if="mode === 'buyNow'" @click="goBuyNow">立刻购买</div>
             </div>
             <div class="btn-none" v-else>该商品已抢完</div>
         </div>
@@ -358,30 +376,46 @@ import CountBox from '@/components/CountBox.vue'
             margin: 0 5px;
             }
         }
-        }
+      }
     }
 
-    .num-box {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px;
-        align-items: center;
-    }
+      .num-box {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px;
+          align-items: center;
+      }
 
-    .btn, .btn-none {
-        height: 40px;
-        line-height: 40px;
-        margin: 20px;
-        border-radius: 20px;
+      .btn, .btn-none {
+          height: 40px;
+          line-height: 40px;
+          margin: 20px;
+          border-radius: 20px;
+          text-align: center;
+          color: rgb(255, 255, 255);
+          background-color: rgb(255, 148, 2);
+      }
+      .btn.now {
+          background-color: #fe5630;
+      }
+      .btn-none {
+          background-color: #cccccc;
+      }
+    }
+    .footer .icon-cart {
+      position: relative;
+      padding: 0 6px;
+      .num {
+        z-index: 999;
+        position: absolute;
+        top: -2px;
+        right: 0;
+        min-width: 16px;
+        padding: 0 4px;
+        color: #fff;
         text-align: center;
-        color: rgb(255, 255, 255);
-        background-color: rgb(255, 148, 2);
-    }
-    .btn.now {
-        background-color: #fe5630;
-    }
-    .btn-none {
-        background-color: #cccccc;
-    }
+        background-color: #ee0a24;
+        border-radius: 50%;
+      }
     }
 </style>
