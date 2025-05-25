@@ -3,8 +3,10 @@ import { getProDetail, getProComment } from '@/api/product'
 import defaultImg from '@/assets/default-avatar.png'
 import CountBox from '@/components/CountBox.vue'
 import { addCart } from '@/api/cart'
+import loginComfirm from '@/mixins/loginComfirm'
   export default {
     name: 'ProDetail',
+    mixins: [loginComfirm],
     data () {
       return {
         images: [],
@@ -52,23 +54,8 @@ import { addCart } from '@/api/cart'
       },
       async addCart () {
         //? 借助token判断用于判断用户是否登录
-        if( !this.$store.state.user.userInfo.token ) { 
-            this.$dialog.confirm({
-                title: '温馨提示',
-                message: '需要先登录才能继续操作哦',
-                confirmButtonText: '去登录',
-                cancelButtonText: '再逛逛'
-            })
-            .then (() => {
-                this.$router.replace({
-                    path: '/login',
-                    query: {
-                        backUrl: this.$route.fullPath
-                    }
-                })
-            })
-            .catch(() => {})
-            return;
+        if (this.loginConfirm()) {
+          return
         }
         const res = await addCart(this.goodsId, this.addCount, this.detail.skuList[0].goods_sku_id)
         console.log(res)
@@ -77,6 +64,9 @@ import { addCart } from '@/api/cart'
         this.showPannel = false
       },
       goBuyNow () {
+        if (this.loginConfirm()) {
+          return
+        }
         this.$router.push({
           path: '/pay',
           query: {
