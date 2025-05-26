@@ -76,7 +76,7 @@ export default {
       return this.$store.getters.token
     },
     ...mapState('cart', ['cartList']),
-    ...mapGetters('cart', ['cartTotal', 'selCount', 'selPrice', 'isAllChecked']),
+    ...mapGetters('cart', ['cartTotal', 'selCount', 'selPrice', 'isAllChecked', 'selCartList']),
   },
   created () {
     if (this.isLogin) {
